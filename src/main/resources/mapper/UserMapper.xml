@@ -24,14 +24,14 @@
         select
         <include refid="selectFields"></include>
         from user
-        where id = #{name}
+        where username = #{name}
     </select>
 
     <select id="selectByEmail" resultType="User">
         select
         <include refid="selectFields"></include>
         from user
-        where id = #{email}
+        where email = #{email}
     </select>
 
     <insert id="insertUser" parameterType="User" keyProperty="id">
