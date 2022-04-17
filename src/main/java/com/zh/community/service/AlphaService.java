@@ -5,7 +5,11 @@ import com.zh.community.dao.UserMapper;
 import com.zh.community.entity.DiscussPost;
 import com.zh.community.entity.User;
 import com.zh.community.util.CommunityUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
@@ -27,6 +31,9 @@ import java.util.Date;
 @Service
 public class AlphaService {
 
+    private static final Logger logger = LoggerFactory.getLogger(AlphaService.class);
+
+
     @Autowired
     private AlphaDao alphaDao;
 
@@ -40,17 +47,17 @@ public class AlphaService {
     private TransactionTemplate transactionTemplate;
 
     public AlphaService() {
-        System.out.println("实例化alpha...");
+       // System.out.println("实例化alpha...");
     }
 
     @PostConstruct
     public void init(){
-        System.out.println("初始化alpha...");
+        //System.out.println("初始化alpha...");
     }
 
     @PreDestroy
     public void destroy(){
-        System.out.println("销毁alpha...");
+        //System.out.println("销毁alpha...");
     }
 
     //REQUIRED 支持当前事务（外部事务），如果不存在则创建新事务
@@ -113,5 +120,16 @@ public class AlphaService {
         });
 
     }
+
+    //让该线程在多线程环境下被异步调用
+    @Async
+    public void execyte1(){
+        logger.debug("execute1");
+    }
+
+//    @Scheduled(initialDelay = 10000, fixedRate = 1000)
+//    public void execyte2(){
+//        logger.debug("execute2");
+//    }
 
 }

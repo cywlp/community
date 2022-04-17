@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.util.HtmlUtils;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -65,4 +66,26 @@ public class MessageService implements CommunityConstant {
     public int readMessage(List<Integer> ids){
         return messageMapper.updateStatus(ids,1);
     };
+
+    // 删除私信
+    public int deleteMessage(int id) {
+        return messageMapper.updateStatus(Arrays.asList(new Integer[]{id}), 2);
+    }
+
+    public Message findLatesNotice(int userId, String topic){
+        return messageMapper.selectLatestNotice(userId, topic);
+    }
+
+    public int findNoticeUnreadCount(int userId, String topic){
+        return messageMapper.selectNoticeUnreadCount(userId, topic);
+    }
+
+    public int findNoticeCount(int userId, String topic){
+        return messageMapper.selectNoticeUnreadCount(userId, topic);
+    }
+
+    public List<Message> findNotices(int userId, String topic, int offset, int limit){
+        return messageMapper.selectNotices(userId, topic, offset, limit);
+    }
+
 }

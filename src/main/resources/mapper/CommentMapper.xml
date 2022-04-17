@@ -32,6 +32,33 @@
           and entity_type = #{entityType}
           and entity_id = #{entityId}
     </select>
+    <select id="selectCommentById" resultType="com.zh.community.entity.Comment">
+        select <include refid="selectFields"></include>
+        from comment
+        where id = #{id}
+    </select>
+    <select id="selectCommentsByUser" resultType="com.zh.community.entity.Comment">
+        select <include refid="selectFields"></include>
+        from comment
+        where status != 1
+        and user_id = #{userId}
+        and entity_type = 1
+        and exists (
+        select id from discuss_post where id = comment.entity_id and status != 2
+        )
+        order by create_time desc
+        limit #{offset}, #{limit}
+
+    </select>
+    <select id="selectCountByUser" resultType="java.lang.Integer">
+        select count(id) from comment
+        where status != 1
+          and user_id = #{userId}
+          and entity_type = 1
+          and exists (
+                select id from discuss_post where id = comment.entity_id and status != 2
+            )
+    </select>
 
 
 </mapper>
