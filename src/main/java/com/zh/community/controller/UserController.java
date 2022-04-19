@@ -1,6 +1,8 @@
 package com.zh.community.controller;
 
 
+import com.qiniu.util.Auth;
+import com.qiniu.util.StringMap;
 import com.zh.community.annotation.LoginRequired;
 import com.zh.community.entity.Comment;
 import com.zh.community.entity.DiscussPost;
@@ -20,6 +22,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
@@ -71,12 +74,49 @@ public class UserController implements CommunityConstant {
     @Autowired
     private CommentService commentService;
 
+//    @Value("${qiniu.key.access}")
+//    private String accessKey;
+//
+//    @Value("${qiniu.key.secret}")
+//    private String secretKey;
+//
+//    @Value("${qiniu.bucket.header.name}")
+//    private String headerBucketName;
+//
+//    @Value("${qiniu.bucket.header.url}")
+//    private String headerBucketUrl;
+
     @LoginRequired
     @RequestMapping(path = "/setting", method = RequestMethod.GET)
-    public String getSettingPage() {
+    public String getSettingPage(Model model) {
+//        //生成文件名称
+//        String fileName = CommunityUtil.generateUUID();
+//        //设置响应信息
+//        StringMap police = new StringMap();
+//        police.put("returnBody", CommunityUtil.getJSONString(0));
+//        //生成上传凭证
+//        Auth auth = Auth.create(accessKey, secretKey);
+//        String uploadToken = auth.uploadToken(headerBucketName, fileName, 3600, police);
+//        model.addAttribute("uploadToken",uploadToken);
+//        model.addAttribute("fileName", fileName);
         return "/site/setting";
     }
 
+//    //更新头像的路径
+//    @RequestMapping(path = "/header/url", method = RequestMethod.POST)
+//    @ResponseBody
+//    public String updateHeaderUrl(String fileName) {
+//        if (StringUtils.isBlank(fileName)){
+//            return CommunityUtil.getJSONString(1,"文件名不能为空!");
+//        }
+//
+//        String url = headerBucketUrl + "/" + fileName;
+//        userService.updateHeader(hostHolder.getUser().getId(), url);
+//
+//        return CommunityUtil.getJSONString(0);
+//    }
+
+    //废弃
     @LoginRequired
     @RequestMapping(path = "/upload", method = RequestMethod.POST)
     public String uploadHeader(MultipartFile headerImage, Model model) {
@@ -113,6 +153,7 @@ public class UserController implements CommunityConstant {
         return "redirect:/index";
     }
 
+    //废弃
     @RequestMapping(path = "/header/{filename}", method = RequestMethod.GET)
     public void getHeader(@PathVariable("filename") String filename, HttpServletResponse response) {
         //服务器存放路径
@@ -140,41 +181,41 @@ public class UserController implements CommunityConstant {
         User user = hostHolder.getUser();
         Map<String, Object> map = userService.updatePassword(user.getId(), oldPassword, newPassword);
 
-        if (map == null || map.isEmpty()){
+        if (map == null || map.isEmpty()) {
             return "redirect:/logout";
-        }else {
-            model.addAttribute("oldPasswordMsg",map.get("oldPasswordMsg"));
-            model.addAttribute("newPasswordMsg",map.get("newPasswordMsg"));
+        } else {
+            model.addAttribute("oldPasswordMsg", map.get("oldPasswordMsg"));
+            model.addAttribute("newPasswordMsg", map.get("newPasswordMsg"));
             return "site/setting";
         }
     }
 
     //个人主页
-    @RequestMapping(path = "/profile/{userId}",method = RequestMethod.GET)
-    public String getProfilePage(@PathVariable("userId") int userId, Model model){
+    @RequestMapping(path = "/profile/{userId}", method = RequestMethod.GET)
+    public String getProfilePage(@PathVariable("userId") int userId, Model model) {
         User user = userService.findUserById(userId);
-        if (user == null){
+        if (user == null) {
             throw new RuntimeException("该用户不存在");
         }
 
         //用户
-        model.addAttribute("user",user);
+        model.addAttribute("user", user);
         //点赞数量
         int likeCount = likeService.findUserLikeCount(userId);
-        model.addAttribute("likeCount",likeCount);
+        model.addAttribute("likeCount", likeCount);
 
         //查询关注数量
         long followeeCount = followService.findFolloweeCount(userId, ENTITY_TYPE_USER);
-        model.addAttribute("followeeCount",followeeCount);
+        model.addAttribute("followeeCount", followeeCount);
         //查询粉丝数量
         long followerCount = followService.findFollowerCount(ENTITY_TYPE_USER, userId);
-        model.addAttribute("followerCount",followerCount);
+        model.addAttribute("followerCount", followerCount);
         //是否已关注
         boolean hasFollowed = false;
-        if (hostHolder.getUser() != null){
+        if (hostHolder.getUser() != null) {
             hasFollowed = followService.hasFollowed(hostHolder.getUser().getId(), ENTITY_TYPE_USER, userId);
         }
-        model.addAttribute("hasFollowed",hasFollowed);
+        model.addAttribute("hasFollowed", hasFollowed);
 
         return "/site/profile";
     }
@@ -194,7 +235,7 @@ public class UserController implements CommunityConstant {
 
         // 帖子列表
         List<DiscussPost> discussList = discussPostService
-                .findDiscussPosts(userId, page.getOffset(), page.getLimit(),0);
+                .findDiscussPosts(userId, page.getOffset(), page.getLimit(), 0);
         List<Map<String, Object>> discussVOList = new ArrayList<>();
         if (discussList != null) {
             for (DiscussPost post : discussList) {
